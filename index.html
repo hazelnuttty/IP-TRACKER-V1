@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>https://hazelnut-tracker-ip.com</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1e1e1e;
+            color: white;
+            padding: 20px;
+        }
+        h2 {
+            margin-bottom: 10px;
+        }
+        input {
+            padding: 10px;
+            width: 250px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>IP TRACKER BY HAZELNUT TEAM</h2>
+    <input type="text" id="ipInput" placeholder="Masukkan IP">
+    <br>
+    <span>Server:</span>
+    <span id="status">🚨 waiting for ip confirmation </span>
+    <br><br>
+    <button onclick="trackIP()">Lacak</button>
+
+    <script>
+        async function trackIP() {
+            let ip = document.getElementById("ipInput").value.trim();
+            let statusEl = document.getElementById("status");
+
+            if (!ip) {
+                alert("Masukkan alamat ip dulu");
+                return;
+            }
+
+            statusEl.innerHTML = "⌛ please wait"; // Status loading
+
+            try {
+                let response = await fetch(`https://ipwhois.app/json/${ip}`);
+                let data = await response.json();
+
+                if (!data || data.success === false) {
+                    statusEl.innerHTML = "❎ Failed to track"; // Gagal
+                    alert("Gagal melacak alamat ip!");
+                    return;
+                }
+
+                let hasil = `🔍 **IP Address Lookup** 🔍\n\n` +
+                            `**IP:** ${data.ip}\n` +
+                            `**Country:** ${data.country} (${data.country_code})\n` +
+                            `**City:** ${data.city}\n` +
+                            `**ISP:** ${data.isp}\n` +
+                            `**Latitude:** ${data.latitude}\n` +
+                            `**Longitude:** ${data.longitude}\n` +
+                            `**Timezone:** ${data.timezone}\n`;
+
+                let webhookURL = "https://discord.com/api/webhooks/1349269328800776312/l4anzPTxXWLkAuGI3UQscN-w6EeTXSnI10LShSPJ3-PeDmBTB1DA-gXu5SCn_nHT1WhQ"; // Ganti dengan webhook lu
+
+                let webhookResponse = await fetch(webhookURL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ content: hasil })
+                });
+
+                if (webhookResponse.ok) {
+                    statusEl.innerHTML = "✅ successfully sent"; // Berhasil dikirim
+                    alert("Hasil dikirim ke discord ya kak!");
+                } else {
+                    statusEl.innerHTML = "❎ Failed to send to webhook"; // Gagal kirim ke webhook
+                    alert("Server gagal mengirim hasil ke discord!");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                statusEl.innerHTML = "❎ There is an error"; // Error terjadi
+                alert("Terjadi kesalahan pada server!");
+            }
+        }
+    </script>
+</body>
+</html>
